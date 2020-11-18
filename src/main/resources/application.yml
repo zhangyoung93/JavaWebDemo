@@ -1,0 +1,21 @@
+server:
+  port: 8082
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://10.19.14.107:8902/rti_airmdp?characterEncoding=utf8&amp;useOldAliasMetadataBehavior=true&amp;autoReconnect=true
+    username: umobile
+    password: Umobile_0305
+    druid:
+      max-active: 10
+      initial-size: 1
+      max-wait: 60000
+      min-idle: 1
+      time-between-eviction-runs-millis: 60000
+      min-evictable-idle-time-millis: 300000
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      pool-prepared-statements: true
+      max-open-prepared-statements: 20
+      async-init: true
