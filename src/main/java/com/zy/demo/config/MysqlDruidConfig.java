@@ -18,14 +18,27 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import javax.sql.DataSource;
 import java.util.Properties;
 
+/**
+ * mybatis配置文件
+ * springboot+mysql+druid
+ * @author zy
+ */
 @Configuration
 @MapperScan(basePackages = MysqlDruidConfig.DAO_LOCATION,sqlSessionFactoryRef = MysqlDruidConfig.FACTORY_REF)
 public class MysqlDruidConfig {
 
+    //dao路径
     static final String DAO_LOCATION = "com.zy.demo.dao.mysql";
+    //mapper路径
     static final String MAPPER_LOCATION = "classpath:mapper/mysql/*.xml";
+    //mysql的sqlSessionFactory引用
     static final String FACTORY_REF = "mysqlSqlSessionFactory";
 
+    /**
+     * 配置mysql数据源并集成druid实现数据库连接池
+     * @param env spring上下文环境变量
+     * @return 数据源
+     */
     @Primary
     @Bean("mysqlDataSource")
     @ConfigurationProperties(prefix = "spring.datasource.druid")
@@ -38,18 +51,32 @@ public class MysqlDruidConfig {
         return druidDataSource;
     }
 
+    /**
+     * 配置mysql事务
+     * @param mysqlDataSource mysql数据源
+     * @return 数据源事务管理
+     */
     @Primary
     @Bean("mysqlTransactionManager")
     public DataSourceTransactionManager mysqlTransactionManager(@Qualifier("mysqlDataSource") DataSource mysqlDataSource){
         return new DataSourceTransactionManager(mysqlDataSource);
     }
 
+    /**
+     * 配置mysql的sqlSessionFactory
+     * @param mysqlDataSource mysql数据源
+     * @return sqlSessionFactory
+     * @throws Exception 异常
+     */
     @Primary
     @Bean(MysqlDruidConfig.FACTORY_REF)
     public SqlSessionFactory mysqlSqlSessionFactory(@Qualifier("mysqlDataSource") DataSource mysqlDataSource) throws Exception {
         SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
+        //设置mysql数据源
         sqlSessionFactoryBean.setDataSource(mysqlDataSource);
+        //设置mapper位置
         sqlSessionFactoryBean.setMapperLocations(new PathMatchingResourcePatternResolver().getResources(MysqlDruidConfig.MAPPER_LOCATION));
+        //设置pageHelper插件
         Properties properties = new Properties();
         properties.setProperty("helperDialect", "mysql");
         properties.setProperty("reasonable", "true");
@@ -59,6 +86,11 @@ public class MysqlDruidConfig {
         return sqlSessionFactoryBean.getObject();
     }
 
+    /**
+     * 配置mysql的sqlSessionTemplate
+     * @param mysqlSqlSessionFactory mysql的sqlSessionFactory
+     * @return sqlSessionTemplate
+     */
     @Primary
     @Bean("mysqlSqlSessionTemplate")
     public SqlSessionTemplate mysqlSqlSessionTemplate(@Qualifier(MysqlDruidConfig.FACTORY_REF) SqlSessionFactory mysqlSqlSessionFactory){
