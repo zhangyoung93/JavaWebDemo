@@ -3,9 +3,9 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://10.19.14.107:8902/rti_airmdp?characterEncoding=utf8&amp;useOldAliasMetadataBehavior=true&amp;autoReconnect=true
-    username: umobile
-    password: Umobile_0305
+    url: jdbc:mysql://192.168.127.129:3306/zy?characterEncoding=utf8&amp;useOldAliasMetadataBehavior=true&amp;autoReconnect=true
+    username: root
+    password: root
     druid:
       max-active: 10
       initial-size: 1
@@ -19,3 +19,14 @@ spring:
       pool-prepared-statements: true
       max-open-prepared-statements: 20
       async-init: true
+      filters: stat
+
+swagger:
+  enabled: true
+  base-package: com.zy.demo
+  title: JavaWebDemoApi
+  description: Api for JavaWebDemo
+  contact:
+    name: zy
+    email: 414218032@qq.com
+  host: 10.1.1.1
