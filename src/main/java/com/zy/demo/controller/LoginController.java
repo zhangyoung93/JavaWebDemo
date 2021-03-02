@@ -2,11 +2,11 @@ package com.zy.demo.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.zy.demo.config.BaseResponse;
 import com.zy.demo.config.BusinessException;
 import com.zy.demo.model.User;
 import com.zy.demo.pojo.LoginDto;
 import com.zy.demo.service.LoginService;
-import com.zy.demo.util.BaseResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
