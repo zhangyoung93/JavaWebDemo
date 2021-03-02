@@ -47,7 +47,7 @@ public class LoginController {
             this.loginService.doLogin(loginDto);
             baseResponse = BaseResponse.success();
         }catch (Exception e){
-            log.error(e.getMessage());
+            log.error("login exception！",e);
             baseResponse = BaseResponse.fail(e.getMessage());
         }
         return baseResponse;
