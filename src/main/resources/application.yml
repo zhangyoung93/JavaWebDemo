@@ -21,6 +21,7 @@ spring:
       async-init: true
       filters: stat
 
+#swagger
 swagger:
   enabled: true
   base-package: com.zy.demo
@@ -30,3 +31,8 @@ swagger:
     name: zy
     email: 414218032@qq.com
   host: 10.1.1.1
+
+#logback
+logging:
+  file:
+    name: JavaWebDemo.log
