@@ -3,7 +3,6 @@ package com.zy.demo.util;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -56,78 +55,68 @@ public class DocumentUtil {
             //获取文件输入流
             is = new FileInputStream(file);
             if(file.getName().endsWith("xlsx")){
-                //解析xlsx文件
+                //解析.xlsx文件
                 workbook = new XSSFWorkbook(is);
             }else if(file.getName().endsWith("xls")){
-                //解析xls文件
+                //解析.xls文件
                 workbook = new HSSFWorkbook(is);
             }else{
                 log.error("文件名后缀必须为xlsx或xls！");
                 return null;
             }
             //解析sheet
-            Sheet sheet = workbook.getSheetAt(1);
+            Sheet sheet = workbook.getSheetAt(0);
             if(sheet == null){
                 log.error("未找到指定sheet！");
                 return null;
             }
             //解析行
-            Row row = sheet.getRow(1);
-            //工作岗位
-            Cell cell = row.getCell(0);
+            Row row = sheet.getRow(0);
+            //解析第二个单元格：工作岗位
+            Cell cell = row.getCell(1);
             if(cell == null){
                 log.error("'工作岗位'解析错误!");
                 return null;
             }
-            String post = cell.getStringCellValue();
-            post = post.split("：")[1].replace(" ","");
-            //应用级别
-            cell = row.getCell(3);
-            if(cell == null){
-                log.error("'应用级别'解析错误!");
-                return null;
-            }
-            String level = cell.getStringCellValue();
-            level = level.split("：")[1].replace(" ","").replace("级","");
-            map = new HashMap<>();
-            map.put("post",post);
-            map.put("level",level);
-            Map<String,String> postLevelRelMap = new HashMap<>();
+            //获取岗位编码
+            String post = cell.getStringCellValue().replace(" ","");
+            //岗位与权限关系
+            Map<String,Integer> postAuthRelMap = new HashMap<>();
+            //最大权限
+            int maxAuthValue = 0;
             //遍历行
-            for(int rowNum = 3 ; rowNum <= sheet.getLastRowNum() ; rowNum++){
+            for(int rowNum = 2 ; rowNum <= sheet.getLastRowNum() ; rowNum++){
                 row = sheet.getRow(rowNum);
+                //权限名称
                 String authName;
-                String authValue;
-                //左侧小类
+                //权限值
+                int authValue;
+                //权限小类
                 cell = row.getCell(2);
                 if(cell != null){
-                    authName = cell.getStringCellValue();
+                    authName = cell.getStringCellValue().trim();
+                    //获取权限值
                     for(int i = 3 ; i <= 6 ; i++){
                         cell = row.getCell(i);
                         if(cell != null){
-                            authValue = String.valueOf((int)cell.getNumericCellValue());
-                            if(cell.getCellStyle().getFillForegroundColor() == IndexedColors.RED.getIndex()){
-                                postLevelRelMap.put(authName,authValue);
-                            }
-                        }
-                    }
-                }
-                //右侧小类
-                cell = row.getCell(9);
-                if(cell != null){
-                    authName = cell.getStringCellValue();
-                    for(int i = 10 ; i <= 13 ; i++){
-                        cell = row.getCell(i);
-                        if(cell != null){
-                            authValue = String.valueOf((int)cell.getNumericCellValue());
-                            if(cell.getCellStyle().getFillForegroundColor() == IndexedColors.RED.getIndex()){
-                                postLevelRelMap.put(authName,authValue);
+                            authValue = (int)cell.getNumericCellValue();
+                            if(authValue > 0){
+                                if(authValue > maxAuthValue){
+                                    maxAuthValue = authValue;
+                                }
+                                //添加岗位与权限关系
+                                postAuthRelMap.put(authName,authValue);
                             }
                         }
                     }
                 }
             }
-            map.put("postLevelRel",postLevelRelMap);
+            if(maxAuthValue > 0){
+                map = new HashMap<>();
+                map.put("post",post);
+                map.put("maxAuthValue",maxAuthValue);
+                map.put("postAuthRelMap",postAuthRelMap);
+            }
         } catch (FileNotFoundException e){
             log.error("解析文件字节流异常！",e);
         } catch (IOException e){
@@ -182,7 +171,7 @@ public class DocumentUtil {
                 //访问文件失败时触发
                 @Override
                 public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-                    log.error("访问文件失败:",file.toString(),exc);
+                    log.error("访问文件{}失败:",file.toString(),exc);
                     failList.add(file.toString());
                     return FileVisitResult.CONTINUE;
                 }
