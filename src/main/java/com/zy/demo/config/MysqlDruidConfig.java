@@ -78,11 +78,17 @@ public class MysqlDruidConfig {
         sqlSessionFactoryBean.setMapperLocations(new PathMatchingResourcePatternResolver().getResources(MysqlDruidConfig.MAPPER_LOCATION));
         //设置pageHelper插件
         Properties properties = new Properties();
+        //指定pageHelper插件使用的数据库方言
         properties.setProperty("helperDialect", "mysql");
+        //开启合理化分页模式。当pageNum<=0时查询第一页；当pageNum>总页数时查询最后一页。
         properties.setProperty("reasonable", "true");
+        //定义分页插件拦截器
         PageInterceptor pageInterceptor = new PageInterceptor();
+        //设置分页拦截器的属性
         pageInterceptor.setProperties(properties);
+        //设置mybatis使用的插件
         sqlSessionFactoryBean.setPlugins(pageInterceptor);
+        //返回sqlSessionFactory对象
         return sqlSessionFactoryBean.getObject();
     }
 
